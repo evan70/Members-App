@@ -19,7 +19,7 @@ class Join_model extends Model {
             // The username is available!
             return true;
         } else {
-            $error_msg = 'The username that your submitted is not available.';
+            $error_msg = 'The username that you submitted is not available.';
             return $error_msg;
         }
     }
@@ -30,7 +30,7 @@ class Join_model extends Model {
             // The email address is available!
             return true;
         } else {
-            $error_msg = 'The email address that your submitted is not available.';
+            $error_msg = 'The email address that you submitted is not available.';
             return $error_msg;
         }
     }
