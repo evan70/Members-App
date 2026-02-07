@@ -1,7 +1,7 @@
 <?php
 /**
  * Join Controller
- * 
+ *
  * Handles user registration and membership creation functionality.
  */
 class Join extends Trongate {
@@ -39,10 +39,41 @@ class Join extends Trongate {
 
             // Create new member record.
             $member_id = $this->model->create_new_member_record($data);
-            echo 'Welcome and thanks for joining!';
+
+            // Send an activate account email. (later)
+
+            // Redirect the user to a 'check your email' page.
+            redirect('join/check_your_email');
+
         } else {
             // Present the form again.
             $this->index();
+        }
+    }
+
+    public function check_your_email() {
+        $data = [
+            'view_module' => 'join',
+            'view_file' => 'check_your_email'
+        ];
+
+        $this->templates->public($data);
+    }
+
+    public function activate() {
+        $user_token = segment(3);
+
+        $result = $this->model->attempt_activate_account($user_token);
+
+        if ($result === false) {
+            $data = [
+                'view_module' => 'join',
+                'view_file' => 'invalid_activation_code'
+            ];
+
+            $this->templates->public($data);
+        } else {
+            echo 'Congrats!  Your account is now activated.';
         }
     }
 

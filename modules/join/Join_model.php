@@ -92,10 +92,28 @@ class Join_model extends Model {
         $data['date_created'] = time();
         $data['num_logins'] = 0;
         $data['password'] = '';
-        $data['user_token'] = '';
+        $data['user_token'] = make_rand_str(32);
+        $data['confirmed'] = 0;
         $member_id = $this->db->insert($data, 'members');
 
         return $member_id;
+    }
+
+    public function attempt_activate_account($user_token) {
+        $member_obj = $this->db->get_one_where('user_token', $user_token, 'members');
+
+        if ($member_obj === false) {
+            return false;
+        }
+
+        $data = [
+            'user_token' => '',
+            'confirmed' => 1
+        ];
+
+        $update_id = (int) $member_obj->id;
+        $this->db->update($update_id, $data, 'members');
+        return $member_obj;
     }
 
 }
