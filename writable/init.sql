@@ -84,3 +84,22 @@ INSERT INTO trongate_administrators (user_level_id, username, password, email, f
 -- Member user (password: admin123)
 INSERT INTO members (username, email, password) VALUES 
 ('evan70', 'evan@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi');
+
+-- Routes table for database-driven routing
+CREATE TABLE IF NOT EXISTS trongate_routes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    route_pattern VARCHAR(255) NOT NULL,
+    destination VARCHAR(255) NOT NULL,
+    method VARCHAR(10) DEFAULT 'GET',
+    is_custom INTEGER DEFAULT 1,
+    priority INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    active INTEGER DEFAULT 1
+);
+
+-- Insert some default routes
+INSERT INTO trongate_routes (route_pattern, destination, method, priority, active) VALUES 
+('members-login', 'members-login', 'GET', 10, 1),
+('join', 'join', 'GET', 10, 1),
+('dashboard', 'dashboard', 'GET', 10, 1);

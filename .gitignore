@@ -18,6 +18,11 @@ Thumbs.db
 desktop.ini
 
 # ===================
+# Issue Tracking
+# ===================
+.beads/
+
+# ===================
 # Config - kept in repo for SQLite setup
 # ===================
 # config/

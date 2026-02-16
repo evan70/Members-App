@@ -578,14 +578,23 @@ class Db extends Trongate {
      */
     public function describe_table(string $table, bool $names_only = false): array|false {
         try {
-            $sql = 'DESCRIBE ' . $table;
-            $columns = $this->query($sql, 'array');
+            if ($this->dbh->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite') {
+                $sql = "PRAGMA table_info($table)";
+                $columns = $this->query($sql, 'array');
+                if ($names_only) {
+                    return array_column($columns, 'name');
+                }
+                return $columns;
+            } else {
+                $sql = 'DESCRIBE ' . $table;
+                $columns = $this->query($sql, 'array');
 
-            if ($names_only) {
-                return array_column($columns, 'Field');
+                if ($names_only) {
+                    return array_column($columns, 'Field');
+                }
+
+                return $columns;
             }
-
-            return $columns;
         } catch (PDOException $e) {
             $this->error = $e->getMessage();
             return false;
@@ -610,6 +619,30 @@ class Db extends Trongate {
                 throw new RuntimeException("Invalid operation.");
             }
         }
+    }
+
+    /**
+     * Get the current database driver
+     * 
+     * @return string Driver name ('sqlite' or 'mysql')
+     * 
+     * Example:
+     * $driver = $db->get_driver();
+     */
+    public function get_driver(): string {
+        return $this->dbh->getAttribute(PDO::ATTR_DRIVER_NAME);
+    }
+
+    /**
+     * Check if using SQLite database
+     * 
+     * @return bool True if SQLite
+     * 
+     * Example:
+     * if ($db->is_sqlite()) { ... }
+     */
+    public function is_sqlite(): bool {
+        return $this->get_driver() === 'sqlite';
     }
 
     /**

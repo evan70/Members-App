@@ -5,7 +5,7 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="stylesheet" href="css/trongate.css">
-	<link rel="stylesheet" href="members-login_module/css/login.css">
+	<link rel="stylesheet" href="module_assets/members_login/css/login.css">
 	<title>Login</title>
 </head>
 <body>

@@ -81,6 +81,50 @@ function get_segments(): array {
  */
 function attempt_custom_routing(string $url): string {
     static $routes = [];
+    static $db_routes = [];
+    
+    $path = ltrim(parse_url($url, PHP_URL_PATH) ?: '/', '/');
+    $base_path = ltrim(parse_url(BASE_URL, PHP_URL_PATH) ?: '/', '/');
+    if ($base_path !== '' && strpos($path, $base_path) === 0) {
+        $path = substr($path, strlen($base_path));
+    }
+    
+    // First check database routes
+    if (empty($db_routes) && isset($GLOBALS['databases'])) {
+        try {
+            $db = new Db();
+            if ($db->table_exists('trongate_routes')) {
+                $sql = "SELECT route_pattern, destination FROM trongate_routes WHERE active = 1 ORDER BY priority DESC";
+                $db_routes = $db->query($sql, 'array') ?: [];
+            }
+        } catch (Exception $e) {
+            // Database not available yet, skip db routes
+            $db_routes = [];
+        }
+    }
+    
+    // Try database routes first (higher priority)
+    foreach ($db_routes as $route) {
+        $pattern = $route['route_pattern'];
+        $dest = $route['destination'];
+        
+        // Convert Trongate route syntax to regex
+        $regex = '#^' . strtr($pattern, [
+            '/' => '\/',
+            '(:num)' => '(\d+)',
+            '(:any)' => '([^\/]+)'
+        ]) . '$#';
+        
+        if (preg_match($regex, $path, $matches)) {
+            $match_count = count($matches);
+            for ($i = 1; $i < $match_count; $i++) {
+                $dest = str_replace('$' . $i, $matches[$i], $dest);
+            }
+            return rtrim(BASE_URL . $dest, '/');
+        }
+    }
+    
+    // Then check config routes
     if (empty($routes)) {
         if (!defined('CUSTOM_ROUTES') || empty(CUSTOM_ROUTES)) {
             return $url;
@@ -94,11 +138,7 @@ function attempt_custom_routing(string $url): string {
             $routes[] = [$regex, $dest];
         }
     }
-    $path = ltrim(parse_url($url, PHP_URL_PATH) ?: '/', '/');
-    $base_path = ltrim(parse_url(BASE_URL, PHP_URL_PATH) ?: '/', '/');
-    if ($base_path !== '' && strpos($path, $base_path) === 0) {
-        $path = substr($path, strlen($base_path));
-    }
+    
     foreach ($routes as [$regex, $dest]) {
         if (preg_match($regex, $path, $matches)) {
             $match_count = count($matches);
