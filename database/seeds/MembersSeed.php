@@ -18,22 +18,36 @@ class MembersSeed extends Seed {
         // Insert test members
         $members = [
             [
+                'username' => 'evan70',
+                'email' => 'evan@example.com',
+                'email_address' => 'evan@example.com',
+                'password' => $password,
+                'confirmed' => 1,
+                'num_logins' => 0
+            ],
+            [
                 'username' => 'john_doe',
                 'email' => 'john@example.com',
                 'email_address' => 'john@example.com',
-                'password' => $password
+                'password' => $password,
+                'confirmed' => 1,
+                'num_logins' => 0
             ],
             [
                 'username' => 'jane_smith', 
                 'email' => 'jane@example.com',
                 'email_address' => 'jane@example.com',
-                'password' => $password
+                'password' => $password,
+                'confirmed' => 1,
+                'num_logins' => 0
             ],
             [
                 'username' => 'bob_wilson',
                 'email' => 'bob@example.com',
                 'email_address' => 'bob@example.com',
-                'password' => $password
+                'password' => $password,
+                'confirmed' => 1,
+                'num_logins' => 0
             ]
         ];
         
