@@ -4,10 +4,6 @@ class Members extends Trongate {
     public $login_url = 'members-login';
     public $logout_url = 'members/logout';
 
-    public function index() {
-        redirect('dashboard');
-    }
-
     public function update_password() {
         echo 'Display update password page (later!)';
     }

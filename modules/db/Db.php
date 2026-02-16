@@ -14,7 +14,6 @@ class Db extends Trongate {
     private $pass;
     private $dbname;
     private $charset = 'utf8mb4';
-    private $driver;
 
     private $dbh;
     private $stmt;
@@ -46,18 +45,11 @@ class Db extends Trongate {
      * 
      * Configuration example (config/database.php):
      * $databases['default'] = [
-     *     'driver' => 'mysql',
      *     'host' => 'localhost',
      *     'port' => '3306',
      *     'user' => 'root',
      *     'password' => 'secret',
      *     'database' => 'myapp'
-     * ];
-     * 
-     * SQLite example:
-     * $databases['default'] = [
-     *     'driver' => 'sqlite',
-     *     'database' => __DIR__ . '/../../writable/database.sqlite'
      * ];
      */
     public function __construct(?string $module_name = null, ?string $db_group = null) {
@@ -79,30 +71,6 @@ class Db extends Trongate {
         }
         
         $config = $GLOBALS['databases'][$db_group];
-        
-        $this->driver = $config['driver'] ?? 'mysql';
-        
-        if ($this->driver === 'sqlite') {
-            $this->dbname = $config['database'];
-            $dsn = 'sqlite:' . $this->dbname;
-            $options = [
-                PDO::ATTR_PERSISTENT => true,
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-            ];
-            
-            try {
-                $this->dbh = new PDO($dsn, null, null, $options);
-            } catch (PDOException $e) {
-                $this->error = $e->getMessage();
-                
-                if ($this->is_dev_mode) {
-                    throw new Exception("Database connection failed: " . $e->getMessage());
-                } else {
-                    throw new Exception("Service unavailable.");
-                }
-            }
-            return;
-        }
         
         $this->host = $config['host'];
         $this->port = $config['port'] ?? '3306';
@@ -528,19 +496,12 @@ class Db extends Trongate {
      */
     public function table_exists(string $table): bool {
         try {
-            if ($this->driver === 'sqlite') {
-                $sql = "SELECT name FROM sqlite_master WHERE type='table' AND name = :table";
-                $stmt = $this->dbh->prepare($sql);
-                $stmt->bindParam(':table', $table, PDO::PARAM_STR);
-                $stmt->execute();
-                return $stmt->fetch(PDO::FETCH_NUM) !== false;
-            } else {
-                $sql = "SHOW TABLES LIKE :table";
-                $stmt = $this->dbh->prepare($sql);
-                $stmt->bindParam(':table', $table, PDO::PARAM_STR);
-                $stmt->execute();
-                return $stmt->fetch(PDO::FETCH_NUM) !== false;
-            }
+            $sql = "SHOW TABLES LIKE :table";
+            $stmt = $this->dbh->prepare($sql);
+            $stmt->bindParam(':table', $table, PDO::PARAM_STR);
+            $stmt->execute();
+
+            return $stmt->fetch(PDO::FETCH_NUM) !== false;
         } catch (PDOException $e) {
             $this->error = $e->getMessage();
             return false;
@@ -557,17 +518,11 @@ class Db extends Trongate {
      */
     public function get_tables(): array {
         try {
-            if ($this->driver === 'sqlite') {
-                $sql = "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'";
-                $stmt = $this->dbh->prepare($sql);
-                $stmt->execute();
-                return $stmt->fetchAll(PDO::FETCH_COLUMN);
-            } else {
-                $sql = "SHOW TABLES";
-                $stmt = $this->dbh->prepare($sql);
-                $stmt->execute();
-                return $stmt->fetchAll(PDO::FETCH_COLUMN);
-            }
+            $sql = "SHOW TABLES";
+            $stmt = $this->dbh->prepare($sql);
+            $stmt->execute();
+
+            return $stmt->fetchAll(PDO::FETCH_COLUMN);
         } catch (PDOException $e) {
             $this->error = $e->getMessage();
             return [];

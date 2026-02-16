@@ -660,7 +660,7 @@ class Validation extends Trongate {
             
             if (class_exists($target_module)) {
                 try {
-                    $callback = new $target_module($module_name);
+                    $callback = new $target_module($module_name);  // ← FIXED: Pass module_name
                     
                     if (method_exists($callback, $target_method)) {
                         $outcome = $callback->$target_method($posted_value);

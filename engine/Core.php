@@ -12,24 +12,15 @@
  */
 class Core {
 
-    private static $instantiated = false;
-
     protected $current_module = DEFAULT_MODULE;
     protected $current_controller;
     protected $current_method = DEFAULT_METHOD;
-    protected $parent_module = '';
-    protected $child_module = '';
 
     /**
      * Constructor for the Core class.
      * Depending on the URL, serves either vendor assets, controller content, or module assets.
      */
     public function __construct() {
-        if (self::$instantiated) {
-            return;
-        }
-        self::$instantiated = true;
-        
         // Initialize controller name based on module name
         $this->current_controller = ucfirst($this->current_module);
 
@@ -51,16 +42,16 @@ class Core {
         $segments = SEGMENTS;
 
         // Parse and sanitize module from segments
-        if (isset($segments[0]) && !empty($segments[0])) {
-            $module_with_no_params = explode('?', $segments[0])[0];
+        if (isset($segments[1])) {
+            $module_with_no_params = explode('?', $segments[1])[0];
             // Security: Ensure module name is only alphanumeric/hyphen/underscore
             $this->current_module = !empty($module_with_no_params) ? preg_replace('/[^a-z0-9-_]/', '', strtolower($module_with_no_params)) : $this->current_module;
             $this->current_controller = ucfirst($this->current_module);
         }
 
         // Parse and validate method from segments  
-        if (isset($segments[1])) {
-            $method_with_no_params = explode('?', $segments[1])[0];
+        if (isset($segments[2])) {
+            $method_with_no_params = explode('?', $segments[2])[0];
             $this->current_method = !empty($method_with_no_params) ? strtolower($method_with_no_params) : $this->current_method;
 
             // Security: Explicitly block methods starting with _ from URL access
@@ -86,15 +77,14 @@ class Core {
      * @return string The path to the controller file
      */
     private function get_controller_path(): string {
-        $base_path = defined('BASEPATH') ? BASEPATH : dirname(__DIR__, 2) . '/';
-        $controller_path = $base_path . 'modules/' . $this->current_module . '/' . $this->current_controller . '.php';
+        $controller_path = '../modules/' . $this->current_module . '/' . $this->current_controller . '.php';
 
         if (file_exists($controller_path)) {
             return $controller_path;
         }
 
         // Try child controller
-        $child_path = $this->try_child_controller($base_path);
+        $child_path = $this->try_child_controller();
         if ($child_path !== null) {
             return $child_path;
         }
@@ -108,17 +98,15 @@ class Core {
      *
      * @return string|null The controller path if found, null otherwise
      */
-    private function try_child_controller(string $base_path = ''): ?string {
+    private function try_child_controller(): ?string {
         $bits = explode('-', $this->current_controller);
 
         if (count($bits) === 2 && strlen($bits[1]) > 0) {
-            $this->parent_module = strtolower($bits[0]);
-            $this->child_module = strtolower($bits[1]);
+            $parent_module = strtolower($bits[0]);
+            $child_module = strtolower($bits[1]);
             $this->current_controller = ucfirst($bits[1]);
-            $this->current_module = $this->parent_module . '-' . $this->child_module;
             
-            $base = $base_path ?: (defined('BASEPATH') ? BASEPATH : dirname(__DIR__, 2) . '/');
-            $controller_path = $base . 'modules/' . $this->parent_module . '/' . $this->child_module . '/' . ucfirst($bits[1]) . '.php';
+            $controller_path = '../modules/' . $parent_module . '/' . $child_module . '/' . ucfirst($bits[1]) . '.php';
             
             if (file_exists($controller_path)) {
                 return $controller_path;
@@ -141,8 +129,7 @@ class Core {
         $handler_parts = explode('/', ERROR_404);
         list($module, $method) = $handler_parts;
 
-        $base_path = defined('BASEPATH') ? BASEPATH : dirname(__DIR__, 2) . '/';
-        $controller_path = $base_path . 'modules/' . $module . '/' . ucfirst($module) . '.php';
+        $controller_path = '../modules/' . $module . '/' . ucfirst($module) . '.php';
         $controller_class = ucfirst($module);
 
         require_once $controller_path;
@@ -170,13 +157,7 @@ class Core {
      */
     private function invoke_controller_method(): void {
         $controller_class = $this->current_controller;
-        
-        // For child modules, pass parent and child module info
-        if ($this->parent_module !== '' && $this->child_module !== '') {
-            $controller_instance = new $controller_class($this->current_module, $this->parent_module, $this->child_module);
-        } else {
-            $controller_instance = new $controller_class($this->current_module);
-        }
+        $controller_instance = new $controller_class($this->current_module);
         
         if (method_exists($controller_instance, $this->current_method)) {
             $controller_instance->{$this->current_method}();

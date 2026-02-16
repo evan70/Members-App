@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Access Temporarily Blocked</title>
-    <link rel="stylesheet" href="/module_assets/trongate_administrators/css/login.css">
+    <link rel="stylesheet" href="trongate_administrators_module/css/login.css">
 </head>
 <body>
     <main class="blocked-page">

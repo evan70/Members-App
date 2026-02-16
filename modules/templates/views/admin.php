@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/trongate-icons.css">
     <link rel="stylesheet" href="css/trongate.css">
-    <link rel="stylesheet" href="/module_assets/templates/css/admin.css">
+    <link rel="stylesheet" href="templates_module/css/admin.css">
     <?= $additional_includes_top ?? '' ?>
     <title><?= $page_title ?? 'Admin Panel' ?></title>
 </head>
@@ -140,7 +140,7 @@
   </ul>
 </nav>
 
-<script src="/module_assets/templates/js/admin.js"></script>
+<script src="templates_module/js/admin.js"></script>
 <?= $additional_includes_btm ?? '' ?>
 </body>
 </html>

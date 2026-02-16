@@ -24,15 +24,6 @@ class Trongate_administrators extends Trongate {
     }
 
     /**
-     * Default entry point - redirect to manage
-     * 
-     * @return void
-     */
-    public function index(): void {
-        redirect($this->module_name . '/manage');
-    }
-
-    /**
      * Display form for creating or editing a record
      * 
      * @return void

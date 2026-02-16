@@ -1,16 +1,11 @@
 <?php
 session_start();
 
-// Determine the base path (project root)
-define('BASEPATH', dirname(__DIR__) . '/');
-
 // Config files
-require_once BASEPATH . 'config/config.php';
-require_once BASEPATH . 'config/constants.php';
-require_once BASEPATH . 'config/custom_routing.php';
-require_once BASEPATH . 'config/database.php';
-require_once BASEPATH . 'config/site_owner.php';
-require_once BASEPATH . 'config/encryption.php';
+require_once '../config/config.php';
+require_once '../config/custom_routing.php';
+require_once '../config/database.php';
+require_once '../config/site_owner.php';
 
 // Make the $databases array globally accessible
 // This is required for multi-database functionality
@@ -45,30 +40,23 @@ spl_autoload_register(function ($class_name) {
  * @return array Returns an associative array with 'assumed_url' and 'segments'.
  */
 function get_segments(): array {
-    // Parse the BASE_URL to determine how many segments to remove
-    $base_url_parsed = parse_url(BASE_URL);
-    $base_path = isset($base_url_parsed['path']) ? $base_url_parsed['path'] : '/';
-    $base_path = trim($base_path, '/');
-    $base_segments = $base_path !== '' ? explode('/', $base_path) : [];
-    $num_segments_to_ditch = count($base_segments);
-
-    // Build the assumed URL from server variables
-    $scheme = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
-    $host = $_SERVER['HTTP_HOST'] ?? '';
-    $request_uri = $_SERVER['REQUEST_URI'] ?? '/';
-    $assumed_url = $scheme . '://' . $host . $request_uri;
-    
-    // Apply custom routing
+    // Figure out how many segments need to be ditched
+    $pseudo_url = str_replace('://', '', BASE_URL);
+    $pseudo_url = rtrim($pseudo_url, '/');
+    $bits = explode('/', $pseudo_url);
+    $num_bits = count($bits);
+    if ($num_bits > 1) {
+        $num_segments_to_ditch = $num_bits - 1;
+    } else {
+        $num_segments_to_ditch = 0;
+    }
+    $assumed_url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
     $assumed_url = attempt_custom_routing($assumed_url);
     $data['assumed_url'] = $assumed_url;
-    
-    // Remove the base URL path to get segments
-    $url_parsed = parse_url($assumed_url);
-    $url_path = isset($url_parsed['path']) ? $url_parsed['path'] : '/';
-    $url_path = trim($url_path, '/');
-    $segments = $url_path !== '' ? explode('/', $url_path) : [];
-    
-    // Remove base path segments
+    $assumed_url = str_replace('://', '', $assumed_url);
+    $assumed_url = rtrim($assumed_url, '/');
+    $segments = explode('/', $assumed_url);
+    // Remove base segments efficiently
     $data['segments'] = array_slice($segments, $num_segments_to_ditch);
     return $data;
 }
@@ -139,12 +127,18 @@ if (defined('INTERCEPTORS') && is_array(INTERCEPTORS)) {
         }
 
         require_once $controller_path;
-        $controller = new $module($module);
-        $controller->$method();
+
+        $class = ucfirst($module);
+        if (!class_exists($class, false)) {
+            throw new RuntimeException("Interceptor class {$class} not defined");
+        }
+
+        $instance = new $class($module);
+
+        if (!is_callable([$instance, $method])) {
+            throw new RuntimeException("Interceptor method {$class}::{$method} is not callable");
+        }
+
+        $instance->{$method}();
     }
 }
-
-/* --------------------------------------------------------------
- * Init Core Library
- * -------------------------------------------------------------- */
-$init = new Core;

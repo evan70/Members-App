@@ -26,18 +26,9 @@ class Trongate {
      *
      * @param string|null $module_name The name of the module to use, 
      *                                or null to auto-detect from class name.
-     * @param string|null $parent_module Parent module name for child modules.
-     * @param string|null $child_module Child module name.
      */
-    public function __construct(?string $module_name = null, ?string $parent_module = null, ?string $child_module = null) {
+    public function __construct(?string $module_name = null) {
         $this->module_name = $module_name ?? strtolower(get_class($this));
-        
-        if ($parent_module !== null) {
-            $this->parent_module = $parent_module;
-        }
-        if ($child_module !== null) {
-            $this->child_module = $child_module;
-        }
     }
 
     /**
@@ -85,13 +76,12 @@ class Trongate {
 
         // Build the controller path and class name
         $controller_class = ucfirst($target_module);
-        $base_path = defined('BASEPATH') ? BASEPATH : dirname(__DIR__, 2) . '/';
-        $controller_path = $base_path . 'modules/' . $target_module . '/' . $controller_class . '.php';
+        $controller_path = '../modules/' . $target_module . '/' . $controller_class . '.php';
         $is_child_module = false;
 
         // If standard path doesn't exist, try child module
         if (!file_exists($controller_path)) {
-            $child_module_info = $this->try_child_module_path($target_module, $base_path);
+            $child_module_info = $this->try_child_module_path($target_module);
             $controller_path = $child_module_info['path'];
             $controller_class = $child_module_info['class'];
             $is_child_module = true;
@@ -133,7 +123,7 @@ class Trongate {
      * @return array An array containing 'path' and 'class' keys.
      * @throws Exception If the controller cannot be found.
      */
-    private function try_child_module_path(string $target_module, string $base_path = ''): array {
+    private function try_child_module_path(string $target_module): array {
         $bits = explode('-', $target_module);
 
         if (count($bits) === 2 && strlen($bits[1]) > 0) {
@@ -141,8 +131,7 @@ class Trongate {
             $child_module = strtolower($bits[1]);
             $controller_class = ucfirst($child_module);
 
-            $base = $base_path ?: (defined('BASEPATH') ? BASEPATH : dirname(__DIR__, 2) . '/');
-            $controller_path = $base . 'modules/' . $parent_module . '/' . $child_module . '/' . $controller_class . '.php';
+            $controller_path = '../modules/' . $parent_module . '/' . $child_module . '/' . $controller_class . '.php';
 
             if (file_exists($controller_path)) {
                 return [
