@@ -8,5 +8,5 @@
 
 $databases['default'] = [
     'driver' => 'sqlite',
-    'database' => '/home/evan/Desktop/ai/opencode/Members-App-main/writable/database.sqlite'
+    'database' => dirname(__DIR__) . '/writable/database.sqlite'
 ];
