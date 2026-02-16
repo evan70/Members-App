@@ -12,15 +12,24 @@
  */
 class Core {
 
+    private static $instantiated = false;
+
     protected $current_module = DEFAULT_MODULE;
     protected $current_controller;
     protected $current_method = DEFAULT_METHOD;
+    protected $parent_module = '';
+    protected $child_module = '';
 
     /**
      * Constructor for the Core class.
      * Depending on the URL, serves either vendor assets, controller content, or module assets.
      */
     public function __construct() {
+        if (self::$instantiated) {
+            return;
+        }
+        self::$instantiated = true;
+        
         // Initialize controller name based on module name
         $this->current_controller = ucfirst($this->current_module);
 
