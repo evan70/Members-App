@@ -70,6 +70,7 @@ CREATE TABLE IF NOT EXISTS members (
     email VARCHAR(100) UNIQUE NOT NULL,
     email_address VARCHAR(100),
     password VARCHAR(255) NOT NULL,
+    confirmed INTEGER DEFAULT 1,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     trongate_user_id INTEGER
