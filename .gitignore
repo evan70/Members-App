@@ -18,9 +18,9 @@ Thumbs.db
 desktop.ini
 
 # ===================
-# Config
+# Config - kept in repo for SQLite setup
 # ===================
-config/
+# config/
 
 # ===================
 # Logs
@@ -63,3 +63,4 @@ uploads/
 # ===================
 writable/*.sqlite
 writable/*.sqlite3
+!writable/init.sql
