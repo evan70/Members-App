@@ -20,16 +20,19 @@ class MembersSeed extends Seed {
             [
                 'username' => 'john_doe',
                 'email' => 'john@example.com',
+                'email_address' => 'john@example.com',
                 'password' => $password
             ],
             [
                 'username' => 'jane_smith', 
                 'email' => 'jane@example.com',
+                'email_address' => 'jane@example.com',
                 'password' => $password
             ],
             [
                 'username' => 'bob_wilson',
                 'email' => 'bob@example.com',
+                'email_address' => 'bob@example.com',
                 'password' => $password
             ]
         ];

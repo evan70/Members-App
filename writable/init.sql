@@ -68,6 +68,7 @@ CREATE TABLE IF NOT EXISTS members (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username VARCHAR(50) UNIQUE NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
+    email_address VARCHAR(100),
     password VARCHAR(255) NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -84,8 +85,8 @@ INSERT INTO trongate_administrators (user_level_id, username, password, email, f
 (1, 'admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin@example.com', 'Admin', 'User');
 
 -- Member user (password: admin123)
-INSERT INTO members (username, email, password) VALUES 
-('evan70', 'evan@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi');
+INSERT INTO members (username, email, email_address, password) VALUES 
+('evan70', 'evan@example.com', 'evan@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi');
 
 -- Routes table for database-driven routing
 CREATE TABLE IF NOT EXISTS trongate_routes (
