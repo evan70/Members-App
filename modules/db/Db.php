@@ -86,7 +86,8 @@ class Db extends Trongate {
             $dsn = 'sqlite:' . $this->dbname;
             $options = [
                 PDO::ATTR_PERSISTENT => true,
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::SQLITE_ATTR_OPEN_FLAGS => PDO::SQLITE_OPEN_READWRITE | PDO::SQLITE_OPEN_CREATE
             ];
             
             try {
