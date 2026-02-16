@@ -82,12 +82,17 @@ class Db extends Trongate {
             if (empty($this->dbname)) {
                 return;
             }
+
+            // Check if file exists and permissions
+            if (!file_exists($this->dbname)) {
+                touch($this->dbname);
+                chmod($this->dbname, 0666);
+            }
             
             $dsn = 'sqlite:' . $this->dbname;
             $options = [
-                PDO::ATTR_PERSISTENT => true,
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                PDO::SQLITE_ATTR_OPEN_FLAGS => PDO::SQLITE_OPEN_READWRITE | PDO::SQLITE_OPEN_CREATE
+                PDO::ATTR_PERSISTENT => false,
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
             ];
             
             try {
