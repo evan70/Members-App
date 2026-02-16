@@ -1,6 +1,6 @@
 # Members App - Trongate v2
 
-A Trongate v2 PHP framework application with SQLite database support.
+A Trongate v2 PHP framework application with PDO SQLite database support now.
 
 ## Features
 
@@ -18,16 +18,16 @@ A Trongate v2 PHP framework application with SQLite database support.
 
 ```bash
 # Start PHP server
-php -S localhost:8003 -t public
+php -S localhost:8000 -t public
 ```
 
 ## Default URLs
 
-- Home: http://localhost:8003/
+- Home: http://localhost:8000/
 - Members Area: http://localhost:8003/dashboard
-- Login: http://localhost:8003/members-login
-- Admin: http://localhost:8003/trongate_administrators
-- Join: http://localhost:8003/join
+- Login: http://localhost:8000/members-login
+- Admin: http://localhost:8000/trongate_administrators
+- Join: http://localhost:8000/join
 
 ## Test Accounts
 
