@@ -26,9 +26,18 @@ class Trongate {
      *
      * @param string|null $module_name The name of the module to use, 
      *                                or null to auto-detect from class name.
+     * @param string|null $parent_module Parent module name for child modules.
+     * @param string|null $child_module Child module name.
      */
-    public function __construct(?string $module_name = null) {
+    public function __construct(?string $module_name = null, ?string $parent_module = null, ?string $child_module = null) {
         $this->module_name = $module_name ?? strtolower(get_class($this));
+        
+        if ($parent_module !== null) {
+            $this->parent_module = $parent_module;
+        }
+        if ($child_module !== null) {
+            $this->child_module = $child_module;
+        }
     }
 
     /**

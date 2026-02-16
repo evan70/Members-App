@@ -17,10 +17,19 @@ class Trongate_administrators extends Trongate {
      * 
      * @param string|null $module_name The name of the module (automatically passed by framework)
      */
-    public function __construct(?string $module_name = null) {
-        parent::__construct($module_name);
+    public function __construct(?string $module_name = null, ?string $parent_module = null, ?string $child_module = null) {
+        parent::__construct($module_name, $parent_module, $child_module);
         $this->dashboard_home = $this->module_name . '/manage';
         $this->login_url = isset($this->secret_login_segment) ? $this->secret_login_segment : $this->module_name . '/login';
+    }
+
+    /**
+     * Default entry point - redirect to manage
+     * 
+     * @return void
+     */
+    public function index(): void {
+        redirect($this->module_name . '/manage');
     }
 
     /**

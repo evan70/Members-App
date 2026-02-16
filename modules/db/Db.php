@@ -72,32 +72,58 @@ class Db extends Trongate {
         
         $config = $GLOBALS['databases'][$db_group];
         
-        $this->host = $config['host'];
-        $this->port = $config['port'] ?? '3306';
-        $this->user = $config['user'];
-        $this->pass = $config['password'];
-        $this->dbname = $config['database'];
+        // Check database driver type
+        $driver = $config['driver'] ?? 'mysql';
         
-        // If database name is empty, return without connecting
-        if ($this->dbname === '') {
-            return;
-        }
-        
-        $dsn = 'mysql:host=' . $this->host . ';port=' . $this->port . ';dbname=' . $this->dbname . ';charset=' . $this->charset;
-        $options = [
-            PDO::ATTR_PERSISTENT => true,
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-        ];
-        
-        try {
-            $this->dbh = new PDO($dsn, $this->user, $this->pass, $options);
-        } catch (PDOException $e) {
-            $this->error = $e->getMessage();
+        if ($driver === 'sqlite') {
+            // SQLite connection
+            $this->dbname = $config['database'];
             
-            if ($this->is_dev_mode) {
+            if (empty($this->dbname)) {
+                return;
+            }
+            
+            $dsn = 'sqlite:' . $this->dbname;
+            $options = [
+                PDO::ATTR_PERSISTENT => true,
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+            ];
+            
+            try {
+                $this->dbh = new PDO($dsn, null, null, $options);
+            } catch (PDOException $e) {
+                $this->error = $e->getMessage();
                 throw new Exception("Database connection failed: " . $e->getMessage());
-            } else {
-                throw new Exception("Service unavailable.");
+            }
+        } else {
+            // MySQL connection
+            $this->host = $config['host'] ?? 'localhost';
+            $this->port = $config['port'] ?? '3306';
+            $this->user = $config['user'] ?? '';
+            $this->pass = $config['password'] ?? '';
+            $this->dbname = $config['database'] ?? '';
+            
+            // If database name is empty, return without connecting
+            if ($this->dbname === '') {
+                return;
+            }
+            
+            $dsn = 'mysql:host=' . $this->host . ';port=' . $this->port . ';dbname=' . $this->dbname . ';charset=' . $this->charset;
+            $options = [
+                PDO::ATTR_PERSISTENT => true,
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+            ];
+            
+            try {
+                $this->dbh = new PDO($dsn, $this->user, $this->pass, $options);
+            } catch (PDOException $e) {
+                $this->error = $e->getMessage();
+                
+                if ($this->is_dev_mode) {
+                    throw new Exception("Database connection failed: " . $e->getMessage());
+                } else {
+                    throw new Exception("Service unavailable.");
+                }
             }
         }
     }
@@ -496,7 +522,12 @@ class Db extends Trongate {
      */
     public function table_exists(string $table): bool {
         try {
-            $sql = "SHOW TABLES LIKE :table";
+            // Check if using SQLite
+            if ($this->dbh->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite') {
+                $sql = "SELECT name FROM sqlite_master WHERE type='table' AND name = :table";
+            } else {
+                $sql = "SHOW TABLES LIKE :table";
+            }
             $stmt = $this->dbh->prepare($sql);
             $stmt->bindParam(':table', $table, PDO::PARAM_STR);
             $stmt->execute();
@@ -518,7 +549,12 @@ class Db extends Trongate {
      */
     public function get_tables(): array {
         try {
-            $sql = "SHOW TABLES";
+            // Check if using SQLite
+            if ($this->dbh->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite') {
+                $sql = "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name";
+            } else {
+                $sql = "SHOW TABLES";
+            }
             $stmt = $this->dbh->prepare($sql);
             $stmt->execute();
 
