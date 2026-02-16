@@ -46,6 +46,7 @@ CREATE TABLE IF NOT EXISTS trongate_users (
 CREATE TABLE IF NOT EXISTS trongate_administrators (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_level_id INTEGER NOT NULL,
+    trongate_user_id INTEGER,
     username VARCHAR(50) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
