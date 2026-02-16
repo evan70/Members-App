@@ -21,8 +21,8 @@ CREATE TABLE IF NOT EXISTS trongate_tokens (
     token_key VARCHAR(128)
 );
 
--- Administrators
-CREATE TABLE IF NOT EXISTS trongate_administrators (
+-- Users
+CREATE TABLE IF NOT EXISTS trongate_users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_level_id INTEGER NOT NULL,
     username VARCHAR(50) UNIQUE NOT NULL,
@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS trongate_administrators (
     email VARCHAR(100) UNIQUE NOT NULL,
     first_name VARCHAR(50),
     last_name VARCHAR(50),
+    code VARCHAR(50),
     suspended INTEGER DEFAULT 0,
     login_blocked_until INTEGER DEFAULT 0,
     failed_login_attempts INTEGER DEFAULT 0,
@@ -41,8 +42,8 @@ CREATE TABLE IF NOT EXISTS trongate_administrators (
     active INTEGER DEFAULT 1
 );
 
--- Users
-CREATE TABLE IF NOT EXISTS trongate_users (
+-- Administrators
+CREATE TABLE IF NOT EXISTS trongate_administrators (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_level_id INTEGER NOT NULL,
     username VARCHAR(50) UNIQUE NOT NULL,
@@ -50,6 +51,7 @@ CREATE TABLE IF NOT EXISTS trongate_users (
     email VARCHAR(100) UNIQUE NOT NULL,
     first_name VARCHAR(50),
     last_name VARCHAR(50),
+    code VARCHAR(50),
     suspended INTEGER DEFAULT 0,
     login_blocked_until INTEGER DEFAULT 0,
     failed_login_attempts INTEGER DEFAULT 0,
