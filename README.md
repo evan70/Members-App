@@ -55,3 +55,8 @@ rm writable/database.sqlite
 - Trongate v2 Framework
 - SQLite
 - PHP 8.1+
+
+## Documentation
+
+For detailed documentation on database setup, CLI tools, and configuration, see:
+[docs/database.md](docs/database.md)
